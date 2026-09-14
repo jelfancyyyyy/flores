@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flores Amarillas · 4° Medio B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,500&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFDF6;
+    --paper-2:#FBF3DC;
+    --ink:#2B2A1E;
+    --ink-soft:#5B5A48;
+    --yellow:#E8A93A;
+    --yellow-deep:#C77B2E;
+    --green:#4B6B3A;
+    --green-deep:#33481F;
+    --line: rgba(43,42,30,0.14);
+    --shadow: 0 10px 30px rgba(75,60,10,0.10);
+    --radius: 22px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Work Sans', sans-serif;
+    font-size:16px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0 0 .3em 0;
+    line-height:1.15;
+    color:var(--green-deep);
+  }
+  p{ margin:0 0 1em 0; color:var(--ink-soft); }
+  button{ font-family:inherit; }
+  :focus-visible{ outline:3px solid var(--yellow-deep); outline-offset:2px; }
+
+  /* ---------- background texture ---------- */
+  .field-bg{
+    position:fixed; inset:0; z-index:-1;
+    background:
+      radial-gradient(circle at 12% 8%, rgba(232,169,58,0.16), transparent 40%),
+      radial-gradient(circle at 92% 18%, rgba(75,107,58,0.10), transparent 38%),
+      radial-gradient(circle at 50% 100%, rgba(232,169,58,0.10), transparent 45%),
+      var(--paper);
+  }
+
+  /* ---------- shell ---------- */
+  .shell{
+    max-width:720px;
+    margin:0 auto;
+    padding:24px 20px 64px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:8px 0 24px;
+  }
+  .mark{ width:40px; height:40px; flex:none; }
+  .brand-text{ display:flex; flex-direction:column; }
+  .brand-text strong{ font-family:'Fraunces', serif; font-size:1.15rem; color:var(--green-deep); }
+  .brand-text span{ font-size:.8rem; color:var(--ink-soft); }
+
+  /* ---------- stepper ---------- */
+  .stepper{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    margin-bottom:36px;
+    position:relative;
+  }
+  .stepper::before{
+    content:"";
+    position:absolute;
+    top:13px; left:6%; right:6%;
+    height:2px;
+    background:var(--line);
+    z-index:0;
+  }
+  .step{
+    position:relative; z-index:1;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+    flex:1;
+  }
+  .step .dot{
+    width:26px; height:26px; border-radius:50%;
+    background:var(--paper);
+    border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-size:.75rem; font-weight:600; color:var(--ink-soft);
+    transition: all .25s ease;
+  }
+  .step .label{ font-size:.72rem; color:var(--ink-soft); text-align:center; max-width:80px; }
+  .step.done .dot{ background:var(--green); border-color:var(--green); color:#fff; }
+  .step.current .dot{ background:var(--yellow); border-color:var(--yellow-deep); color:var(--ink); }
+  .step.current .label{ color:var(--ink); font-weight:600; }
+
+  /* ---------- screens ---------- */
+  .screen{ display:none; animation: rise .5s ease both; }
+  .screen.active{ display:block; }
+  @keyframes rise{
+    from{ opacity:0; transform:translateY(14px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  .card{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px;
+    box-shadow:var(--shadow);
+  }
+
+  .hero-copy{ margin-bottom:22px; }
+  .hero-copy h1{ font-size:clamp(1.7rem, 5vw, 2.3rem); }
+  .hero-copy p{ font-size:1.02rem; max-width:52ch; }
+
+  /* ---------- form ---------- */
+  .field{ margin-bottom:18px; }
+  .field label{
+    display:block; font-size:.85rem; font-weight:600;
+    color:var(--green-deep); margin-bottom:6px;
+  }
+  .field input[type="text"]{
+    width:100%;
+    padding:13px 14px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    font-size:1rem;
+    color:var(--ink);
+  }
+  .field input:disabled{ opacity:.5; }
+  .anon-row{
+    display:flex; align-items:center; gap:10px;
+    margin-top:10px; font-size:.9rem; color:var(--ink-soft);
+  }
+  .anon-row input{ width:18px; height:18px; accent-color:var(--green); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:14px 22px;
+    border-radius:14px;
+    border:none;
+    background:var(--green);
+    color:#fff;
+    font-weight:600;
+    font-size:1rem;
+    cursor:pointer;
+    transition: transform .15s ease, background .2s ease;
+    width:100%;
+  }
+  .btn:hover{ background:var(--green-deep); }
+  .btn:active{ transform:scale(.985); }
+  .btn.secondary{
+    background:transparent;
+    color:var(--green-deep);
+    border:1.5px solid var(--line);
+  }
+  .btn.secondary:hover{ background:rgba(75,107,58,0.08); }
+  .btn-row{ display:flex; gap:12px; margin-top:8px; }
+  .btn-row .btn{ width:auto; flex:1; }
+  .btn[disabled]{ opacity:.45; cursor:not-allowed; }
+  .btn[disabled]:hover{ background:var(--green); }
+
+  .error-msg{
+    color:#9a3b1f; font-size:.85rem; margin-top:-8px; margin-bottom:14px; display:none;
+  }
+  .error-msg.show{ display:block; }
+
+  /* ---------- catalog ---------- */
+  .catalog-intro{ margin-bottom:20px; }
+  .products{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+  }
+  @media (max-width:520px){
+    .products{ grid-template-columns:1fr; }
+  }
+  .product{
+    background:var(--paper);
+    border:1.5px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .product.selected{
+    border-color:var(--yellow-deep);
+    box-shadow:0 0 0 3px rgba(232,169,58,0.25);
+  }
+  .product svg{ width:100%; height:100px; }
+  .product h3{ font-size:1.05rem; margin-bottom:2px; }
+  .product .desc{ font-size:.85rem; color:var(--ink-soft); margin:0 0 6px 0; flex:1; }
+  .product .price{ font-family:'Fraunces', serif; font-weight:600; font-size:1.2rem; color:var(--yellow-deep); }
+  .product .pick{
+    margin-top:auto;
+    background:var(--paper-2);
+    border:1.5px solid var(--line);
+    color:var(--ink);
+    padding:10px 12px;
+    border-radius:10px;
+    font-weight:600;
+    font-size:.9rem;
+    cursor:pointer;
+  }
+  .product.selected .pick{ background:var(--yellow); border-color:var(--yellow-deep); }
+
+  /* ---------- checkout ---------- */
+  .summary-row{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    padding:10px 0; border-bottom:1px dashed var(--line); font-size:.94rem;
+  }
+  .summary-row:last-child{ border-bottom:none; }
+  .summary-row .k{ color:var(--ink-soft); }
+  .summary-row .v{ font-weight:600; text-align:right; }
+
+  .pay-options{ display:flex; flex-direction:column; gap:10px; margin:18px 0; }
+  .pay-option{
+    display:flex; gap:12px; align-items:flex-start;
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:14px;
+    cursor:pointer;
+    background:var(--paper);
+  }
+  .pay-option input{ margin-top:3px; accent-color:var(--green); }
+  .pay-option.selected{ border-color:var(--green); background:rgba(75,107,58,0.06); }
+  .pay-option .t{ font-weight:600; font-size:.95rem; }
+  .pay-option .d{ font-size:.82rem; color:var(--ink-soft); margin-top:2px; }
+  .pay-detail{
+    display:none;
+    margin:-4px 0 18px 0;
+    padding:14px 16px;
+    background:var(--paper-2);
+    border-radius:12px;
+    font-size:.87rem;
+    color:var(--ink-soft);
+  }
+  .pay-detail.show{ display:block; }
+
+  /* ---------- confirmation ---------- */
+  .confirm-card{ text-align:center; padding:40px 28px; }
+  .confirm-card .stalk{ width:70px; margin:0 auto 14px; }
+  .order-code{
+    display:inline-block;
+    margin:14px 0 20px;
+    padding:8px 16px;
+    background:var(--yellow);
+    color:var(--ink);
+    border-radius:10px;
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    letter-spacing:.5px;
+  }
+  .sync-note{ font-size:.8rem; color:var(--ink-soft); margin-top:18px; }
+
+  footer.foot{
+    text-align:center;
+    font-size:.78rem;
+    color:var(--ink-soft);
+    margin-top:40px;
+  }
+</style>
+</head>
+<body>
+<div class="field-bg"></div>
+
+<div class="shell">
+  <header class="top">
+    <svg class="mark" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="7" fill="#C77B2E"/>
+      <g fill="#E8A93A">
+        <ellipse cx="24" cy="9" rx="6" ry="10"/>
+        <ellipse cx="24" cy="39" rx="6" ry="10"/>
+        <ellipse cx="9" cy="24" rx="10" ry="6"/>
+        <ellipse cx="39" cy="24" rx="10" ry="6"/>
+      </g>
+    </svg>
+    <div class="brand-text">
+      <strong>Flores Amarillas</strong>
+      <span>Pedidos 4° Medio B</span>
+    </div>
+  </header>
+
+  <div class="stepper" id="stepper">
+    <div class="step" data-step="1"><div class="dot">1</div><div class="label">Datos</div></div>
+    <div class="step" data-step="2"><div class="dot">2</div><div class="label">Ramo</div></div>
+    <div class="step" data-step="3"><div class="dot">3</div><div class="label">Pago</div></div>
+    <div class="step" data-step="4"><div class="dot">4</div><div class="label">Listo</div></div>
+  </div>
+
+  <!-- ============ PASO 1: FORMULARIO ============ -->
+  <section class="screen active" id="screen-1">
+    <div class="hero-copy">
+      <h1>¿Para quién son las flores hoy?</h1>
+      <p>Cuéntanos quién las recibe y de parte de quién van, y armamos el ramo perfecto para la ocasión.</p>
+    </div>
+    <div class="card">
+      <div class="field">
+        <label for="recipientName">Nombre de quien recibe las flores</label>
+        <input type="text" id="recipientName" placeholder="Ej: Martina Soto">
+      </div>
+      <div class="field">
+        <label for="recipientCourse">Curso de quien recibe las flores</label>
+        <input type="text" id="recipientCourse" placeholder="Ej: 3° Medio A">
+      </div>
+      <div class="field">
+        <label for="senderName">Nombre de quien las envía</label>
+        <input type="text" id="senderName" placeholder="Ej: Benjamín Rojas">
+        <div class="anon-row">
+          <input type="checkbox" id="isAnonymous">
+          <label for="isAnonymous" style="margin:0; font-weight:400; color:var(--ink-soft);">Enviar como anónimo</label>
+        </div>
+      </div>
+      <p class="error-msg" id="form-error">Por favor completa el nombre y curso de quien recibe, y el nombre del remitente (o marca "Anónimo").</p>
+      <button class="btn" id="btn-to-catalog">Ver ramos disponibles</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 2: CATÁLOGO ============ -->
+  <section class="screen" id="screen-2">
+    <div class="hero-copy catalog-intro">
+      <h1>Elige el ramo</h1>
+      <p>Cuatro tamaños, un mismo cariño amarillo. Selecciona el que más se ajuste al mensaje.</p>
+    </div>
+
+    <div class="products" id="products"></div>
+
+    <div class="btn-row" style="margin-top:22px;">
+      <button class="btn secondary" id="btn-back-1">Volver</button>
+      <button class="btn" id="btn-to-checkout" disabled>Continuar al pago</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 3: CHECKOUT ============ -->
+  <section class="screen" id="screen-3">
+    <div class="hero-copy">
+      <h1>Resumen y pago</h1>
+      <p>Revisa el pedido y elige cómo prefieres pagarlo.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <div class="summary-row"><span class="k">Destinatario</span><span class="v" id="sum-recipient">—</span></div>
+      <div class="summary-row"><span class="k">Curso</span><span class="v" id="sum-course">—</span></div>
+      <div class="summary-row"><span class="k">Remitente</span><span class="v" id="sum-sender">—</span></div>
+      <div class="summary-row"><span class="k">Ramo</span><span class="v" id="sum-product">—</span></div>
+      <div class="summary-row"><span class="k">Total</span><span class="v" id="sum-price">—</span></div>
+    </div>
+
+    <div class="card">
+      <h3 style="font-size:1rem; margin-bottom:12px;">Método de pago</h3>
+      <div class="pay-options" id="pay-options">
+        <label class="pay-option" data-method="Transferencia bancaria">
+          <input type="radio" name="pay" value="Transferencia bancaria">
+          <span><span class="t">Transferencia bancaria</span><br><span class="d">Directo a la cuenta del curso.</span></span>
+        </label>
+        <label class="pay-option" data-method="Efectivo">
+          <input type="radio" name="pay" value="Efectivo">
+          <span><span class="t">Efectivo</span><br><span class="d">Pago en persona al retirar o al momento de la entrega.</span></span>
+        </label>
+        <label class="pay-option" data-method="App de pago">
+          <input type="radio" name="pay" value="App de pago">
+          <span><span class="t">App de pago (Mercado Pago / MACH)</span><br><span class="d">Pago instantáneo desde el celular.</span></span>
+        </label>
+      </div>
+
+      <div class="pay-detail" id="detail-transferencia">
+        <strong>Datos para transferir:</strong><br>
+        Nombre: 4° Medio B — Tesorería de curso<br>
+        RUT: 11.111.111-1 · Banco: [completar]<br>
+        Cuenta: [completar] · Correo: tesoreria4b@ejemplo.cl<br>
+        Envía el comprobante al WhatsApp del curso una vez hecha la transferencia.
+      </div>
+      <div class="pay-detail" id="detail-efectivo">
+        <strong>Pago en efectivo:</strong><br>
+        Puedes pagar directamente al encargado del curso al momento de retirar o recibir el ramo.
+      </div>
+      <div class="pay-detail" id="detail-app">
+        <strong>Pago por app:</strong><br>
+        Escanea el QR o busca el alias <em>4medioB.flores</em> en Mercado Pago o MACH.
+      </div>
+
+      <p class="error-msg" id="pay-error">Selecciona un método de pago para continuar.</p>
+      <button class="btn" id="btn-confirm">Confirmar pedido</button>
+      <button class="btn secondary" id="btn-back-2" style="margin-top:10px;">Volver al catálogo</button>
+    </div>
+  </section>
+
+  <!-- ============ PASO 4: CONFIRMACIÓN ============ -->
+  <section class="screen" id="screen-4">
+    <div class="card confirm-card">
+      <svg class="stalk" viewBox="0 0 48 48" fill="none">
+        <circle cx="24" cy="18" r="7" fill="#C77B2E"/>
+        <g fill="#E8A93A">
+          <ellipse cx="24" cy="4" rx="6" ry="9"/>
+          <ellipse cx="10" cy="18" rx="9" ry="5.5"/>
+          <ellipse cx="38" cy="18" rx="9" ry="5.5"/>
+        </g>
+        <path d="M24 24 L24 44" stroke="#4B6B3A" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <h2>¡Pedido recibido!</h2>
+      <p>Tu ramo quedó registrado y el curso ya sabe que viene en camino.</p>
+      <div class="order-code" id="order-code">FA-0000</div>
+      <p style="font-size:.9rem;">Guarda este código por si necesitas consultar tu pedido.</p>
+      <p class="sync-note" id="sync-note"></p>
+      <button class="btn secondary" id="btn-new-order" style="margin-top:16px;">Hacer otro pedido</button>
+    </div>
+  </section>
+
+  <footer class="foot">Proyecto de curso · Flores Amarillas 4° Medio B</footer>
+</div>
+
+<script>
+/* =======================================================================
+   CONFIGURACIÓN: pega aquí la URL de tu Web App de Google Apps Script.
+   Instrucciones completas al final de la conversación / README.
+   ======================================================================= */
+const CONFIG = {
+  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyb6Mi2BYQECYBewSkmcQa95eUwlWTAqLwKsXxk4-CvSRp14tixTIlufngrLVQ3qdXC/exec"
+};
+
+/* ---------------------------- datos de productos ---------------------------- */
+const PRODUCTS = [
+  {
+    id: "pequeno",
+    name: "Ramo pequeño",
+    desc: "3 flores amarillas, ideal para un gesto simple.",
+    price: 3000,
+    svg: bouquetSVG(3)
+  },
+  {
+    id: "mediano",
+    name: "Ramo mediano",
+    desc: "5 flores con follaje, el favorito del curso.",
+    price: 5000,
+    svg: bouquetSVG(5)
+  },
+  {
+    id: "grande",
+    name: "Ramo grande",
+    desc: "8 flores bien llenas, para un cariño grande.",
+    price: 7500,
+    svg: bouquetSVG(8)
+  },
+  {
+    id: "premium",
+    name: "Detalle especial / Premium",
+    desc: "Ramo grande + tarjeta y detalle dulce.",
+    price: 10000,
+    svg: bouquetSVG(8, true)
+  }
+];
+
+function bouquetSVG(count, ribbon){
+  const positions = [
+    [50,55],[30,60],[70,60],[20,72],[80,72],[38,78],[62,78],[50,68]
+  ].slice(0, count);
+  let flowers = positions.map(([x,y], i) => `
+    <g>
+      <circle cx="${x}" cy="${y}" r="3" fill="#C77B2E"/>
+      <ellipse cx="${x}" cy="${y-7}" rx="4" ry="6" fill="#E8A93A"/>
+      <ellipse cx="${x}" cy="${y+7}" rx="4" ry="6" fill="#E8A93A"/>
+      <ellipse cx="${x-7}" cy="${y}" rx="6" ry="4" fill="#E8A93A"/>
+      <ellipse cx="${x+7}" cy="${y}" rx="6" ry="4" fill="#E8A93A"/>
+    </g>`).join("");
+  const wrap = `<path d="M15 95 Q50 70 85 95 L78 100 Q50 82 22 100 Z" fill="#4B6B3A"/>`;
+  const bow = ribbon ? `<path d="M42 96 l8 6 l8 -6 l-4 8 l4 8 l-8 -6 l-8 6 l4 -8 Z" fill="#C77B2E"/>` : "";
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">${wrap}${flowers}${bow}</svg>`;
+}
+
+/* ---------------------------- estado del pedido ---------------------------- */
+const order = {
+  recipientName: "",
+  recipientCourse: "",
+  senderName: "",
+  isAnonymous: false,
+  product: null,
+  paymentMethod: ""
+};
+
+const priceFmt = n => "$" + n.toLocaleString("es-CL");
+
+/* ---------------------------- navegación entre pantallas ---------------------------- */
+function goToScreen(n){
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen-" + n).classList.add("active");
+  document.querySelectorAll(".step").forEach(st => {
+    const stepNum = Number(st.dataset.step);
+    st.classList.remove("done", "current");
+    if (stepNum < n) st.classList.add("done");
+    if (stepNum === n) st.classList.add("current");
+  });
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+/* ---------------------------- PASO 1 ---------------------------- */
+const recipientNameEl = document.getElementById("recipientName");
+const recipientCourseEl = document.getElementById("recipientCourse");
+const senderNameEl = document.getElementById("senderName");
+const isAnonymousEl = document.getElementById("isAnonymous");
+
+isAnonymousEl.addEventListener("change", () => {
+  senderNameEl.disabled = isAnonymousEl.checked;
+  if (isAnonymousEl.checked) senderNameEl.value = "";
+});
+
+document.getElementById("btn-to-catalog").addEventListener("click", () => {
+  const recipientName = recipientNameEl.value.trim();
+  const recipientCourse = recipientCourseEl.value.trim();
+  const senderName = senderNameEl.value.trim();
+  const anon = isAnonymousEl.checked;
+
+  const valid = recipientName && recipientCourse && (anon || senderName);
+  document.getElementById("form-error").classList.toggle("show", !valid);
+  if (!valid) return;
+
+  order.recipientName = recipientName;
+  order.recipientCourse = recipientCourse;
+  order.senderName = anon ? "Anónimo" : senderName;
+  order.isAnonymous = anon;
+
+  goToScreen(2);
+});
+
+/* ---------------------------- PASO 2 ---------------------------- */
+const productsEl = document.getElementById("products");
+PRODUCTS.forEach(p => {
+  const div = document.createElement("div");
+  div.className = "product";
+  div.dataset.id = p.id;
+  div.innerHTML = `
+    ${p.svg}
+    <h3>${p.name}</h3>
+    <p class="desc">${p.desc}</p>
+    <div class="price">${priceFmt(p.price)}</div>
+    <button type="button" class="pick">Seleccionar</button>
+  `;
+  div.addEventListener("click", () => selectProduct(p, div));
+  productsEl.appendChild(div);
+});
+
+function selectProduct(p, el){
+  document.querySelectorAll(".product").forEach(d => d.classList.remove("selected"));
+  document.querySelectorAll(".product .pick").forEach(b => b.textContent = "Seleccionar");
+  el.classList.add("selected");
+  el.querySelector(".pick").textContent = "Seleccionado ✓";
+  order.product = p;
+  document.getElementById("btn-to-checkout").disabled = false;
+}
+
+document.getElementById("btn-back-1").addEventListener("click", () => goToScreen(1));
+
+document.getElementById("btn-to-checkout").addEventListener("click", () => {
+  if (!order.product) return;
+  document.getElementById("sum-recipient").textContent = order.recipientName;
+  document.getElementById("sum-course").textContent = order.recipientCourse;
+  document.getElementById("sum-sender").textContent = order.senderName;
+  document.getElementById("sum-product").textContent = order.product.name;
+  document.getElementById("sum-price").textContent = priceFmt(order.product.price);
+  goToScreen(3);
+});
+
+/* ---------------------------- PASO 3 ---------------------------- */
+document.getElementById("btn-back-2").addEventListener("click", () => goToScreen(2));
+
+const payOptions = document.querySelectorAll(".pay-option");
+const payDetails = {
+  "Transferencia bancaria": document.getElementById("detail-transferencia"),
+  "Efectivo": document.getElementById("detail-efectivo"),
+  "App de pago": document.getElementById("detail-app")
+};
+
+payOptions.forEach(opt => {
+  opt.addEventListener("click", () => {
+    payOptions.forEach(o => o.classList.remove("selected"));
+    opt.classList.add("selected");
+    opt.querySelector("input").checked = true;
+
+    Object.values(payDetails).forEach(d => d.classList.remove("show"));
+    const method = opt.dataset.method;
+    payDetails[method].classList.add("show");
+
+    order.paymentMethod = method;
+    document.getElementById("pay-error").classList.remove("show");
+  });
+});
+
+document.getElementById("btn-confirm").addEventListener("click", async () => {
+  if (!order.paymentMethod) {
+    document.getElementById("pay-error").classList.add("show");
+    return;
+  }
+
+  const btn = document.getElementById("btn-confirm");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  const code = "FA-" + Math.floor(1000 + Math.random() * 9000);
+  document.getElementById("order-code").textContent = code;
+
+  const payload = {
+    codigo: code,
+    fecha: new Date().toLocaleString("es-CL"),
+    destinatario: order.recipientName,
+    curso: order.recipientCourse,
+    remitente: order.senderName,
+    anonimo: order.isAnonymous ? "Sí" : "No",
+    ramo: order.product.name,
+    precio: order.product.price,
+    metodoPago: order.paymentMethod
+  };
+
+  const syncNote = document.getElementById("sync-note");
+
+  if (CONFIG.GOOGLE_SCRIPT_URL && !CONFIG.GOOGLE_SCRIPT_URL.startsWith("PEGA_AQUI")) {
+    try {
+      await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      syncNote.textContent = "Tu pedido fue enviado a la planilla del curso.";
+    } catch (err) {
+      syncNote.textContent = "No se pudo enviar a la planilla (revisa tu conexión). El código sigue siendo válido.";
+      console.error("Error enviando a Google Sheets:", err);
+    }
+  } else {
+    syncNote.textContent = "Modo de prueba: falta configurar la URL de Google Sheets (ver README).";
+    console.log("Pedido (modo prueba, sin Sheets configurado):", payload);
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Confirmar pedido";
+  goToScreen(4);
+});
+
+/* ---------------------------- PASO 4 ---------------------------- */
+document.getElementById("btn-new-order").addEventListener("click", () => {
+  recipientNameEl.value = "";
+  recipientCourseEl.value = "";
+  senderNameEl.value = "";
+  senderNameEl.disabled = false;
+  isAnonymousEl.checked = false;
+  order.product = null;
+  order.paymentMethod = "";
+  document.querySelectorAll(".product").forEach(d => d.classList.remove("selected"));
+  document.querySelectorAll(".product .pick").forEach(b => b.textContent = "Seleccionar");
+  document.getElementById("btn-to-checkout").disabled = true;
+  payOptions.forEach(o => o.classList.remove("selected"));
+  Object.values(payDetails).forEach(d => d.classList.remove("show"));
+  goToScreen(1);
+});
+</script>
+</body>
+</html>
