@@ -132,7 +132,8 @@
     display:block; font-size:.85rem; font-weight:600;
     color:var(--green-deep); margin-bottom:6px;
   }
-  .field input[type="text"]{
+  .field input[type="text"],
+  .field select{
     width:100%;
     padding:13px 14px;
     border-radius:12px;
@@ -140,7 +141,18 @@
     background:var(--paper);
     font-size:1rem;
     color:var(--ink);
+    font-family:inherit;
   }
+  .field select{
+    appearance:none;
+    -webkit-appearance:none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%235B5A48'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%235B5A48' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:right 14px center;
+    background-size:18px;
+    padding-right:38px;
+  }
+  .field select:invalid{ color: var(--ink-soft); }
   .field input:disabled{ opacity:.5; }
   .anon-row{
     display:flex; align-items:center; gap:10px;
@@ -317,7 +329,18 @@
       </div>
       <div class="field">
         <label for="recipientCourse">Curso de quien recibe las flores</label>
-        <input type="text" id="recipientCourse" placeholder="Ej: 3° Medio A">
+        <select id="recipientCourse">
+          <option value="" disabled selected>Selecciona un curso</option>
+          <option value="8° Básico B">8° Básico B</option>
+          <option value="1° Medio A">1° Medio A</option>
+          <option value="1° Medio B">1° Medio B</option>
+          <option value="2° Medio A">2° Medio A</option>
+          <option value="2° Medio B">2° Medio B</option>
+          <option value="3° Medio A">3° Medio A</option>
+          <option value="3° Medio B">3° Medio B</option>
+          <option value="4° Medio A">4° Medio A</option>
+          <option value="4° Medio B">4° Medio B</option>
+        </select>
       </div>
       <div class="field">
         <label for="senderName">Nombre de quien las envía</label>
@@ -377,6 +400,10 @@
           <input type="radio" name="pay" value="App de pago">
           <span><span class="t">App de pago (Mercado Pago / MACH)</span><br><span class="d">Pago instantáneo desde el celular.</span></span>
         </label>
+        <label class="pay-option" data-method="Tarjeta">
+          <input type="radio" name="pay" value="Tarjeta">
+          <span><span class="t">Tarjeta de débito o crédito</span><br><span class="d">Se abre un link de pago seguro de Mercado Pago.</span></span>
+        </label>
       </div>
 
       <div class="pay-detail" id="detail-transferencia">
@@ -393,6 +420,12 @@
       <div class="pay-detail" id="detail-app">
         <strong>Pago por app:</strong><br>
         Escanea el QR o busca el alias <em>4medioB.flores</em> en Mercado Pago o MACH.
+      </div>
+      <div class="pay-detail" id="detail-tarjeta">
+        <strong>Pago con tarjeta:</strong><br>
+        Al confirmar el pedido se abrirá una pestaña nueva con el link de pago seguro de Mercado Pago. Completa el pago ahí antes de retirar tu ramo.
+        <br><br>
+        <button type="button" class="btn secondary" id="btn-open-card-link" style="width:auto; padding:10px 16px;">Abrir link de pago ahora</button>
       </div>
 
       <p class="error-msg" id="pay-error">Selecciona un método de pago para continuar.</p>
@@ -431,7 +464,9 @@
    Instrucciones completas al final de la conversación / README.
    ======================================================================= */
 const CONFIG = {
-  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyb6Mi2BYQECYBewSkmcQa95eUwlWTAqLwKsXxk4-CvSRp14tixTIlufngrLVQ3qdXC/exec"
+  GOOGLE_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbyb6Mi2BYQECYBewSkmcQa95eUwlWTAqLwKsXxk4-CvSRp14tixTIlufngrLVQ3qdXC/exec",
+  // Pega aquí el link de pago que generes en Mercado Pago (ver instrucciones).
+  CARD_PAYMENT_LINK: "PEGA_AQUI_TU_LINK_DE_MERCADO_PAGO"
 };
 
 /* ---------------------------- datos de productos ---------------------------- */
@@ -582,8 +617,19 @@ const payOptions = document.querySelectorAll(".pay-option");
 const payDetails = {
   "Transferencia bancaria": document.getElementById("detail-transferencia"),
   "Efectivo": document.getElementById("detail-efectivo"),
-  "App de pago": document.getElementById("detail-app")
+  "App de pago": document.getElementById("detail-app"),
+  "Tarjeta": document.getElementById("detail-tarjeta")
 };
+
+function abrirLinkDeTarjeta(){
+  if (CONFIG.CARD_PAYMENT_LINK && !CONFIG.CARD_PAYMENT_LINK.startsWith("PEGA_AQUI")) {
+    window.open(CONFIG.CARD_PAYMENT_LINK, "_blank");
+  } else {
+    alert("Aún falta configurar el link de pago con tarjeta (CARD_PAYMENT_LINK en el código).");
+  }
+}
+
+document.getElementById("btn-open-card-link").addEventListener("click", abrirLinkDeTarjeta);
 
 payOptions.forEach(opt => {
   opt.addEventListener("click", () => {
@@ -612,6 +658,10 @@ document.getElementById("btn-confirm").addEventListener("click", async () => {
 
   const code = "FA-" + Math.floor(1000 + Math.random() * 9000);
   document.getElementById("order-code").textContent = code;
+
+  if (order.paymentMethod === "Tarjeta") {
+    abrirLinkDeTarjeta();
+  }
 
   const payload = {
     codigo: code,
